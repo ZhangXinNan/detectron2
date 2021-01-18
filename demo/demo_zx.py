@@ -101,12 +101,12 @@ def detect_car(img):
         classes = predictions["instances"].pred_classes if predictions["instances"].has("pred_classes") else None
         from detectron2.structures import Boxes
         if isinstance(boxes, Boxes):
-            boxes = boxes.tensor.numpy()
+            boxes = boxes.tensor.cpu().numpy()
         import torch
         if isinstance(scores, torch.Tensor):
-            scores = scores.numpy()
+            scores = scores.cpu().numpy()
         if isinstance(classes, torch.Tensor):
-            classes = classes.numpy()
+            classes = classes.cpu().numpy()
         for i, cls in enumerate(classes):
             if cls == 2:
                 area = abs(boxes[i][2] - boxes[i][0]) * abs(boxes[i][3] - boxes[i][1])
@@ -190,5 +190,5 @@ if __name__ == "__main__":
                           font=font,
                           fill=(0, 0, 255))
             img.save(os.path.join(out_dir, filename))
-        break
+        # break
     fo.close()
