@@ -64,6 +64,7 @@ def get_parser():
     parser.add_argument("--in_dir")
     # parser.add_argument("--out_dir")
     parser.add_argument("--out_info")
+    parser.add_argument('--out_info_nocar')
     parser.add_argument("--font_path", default='~/data_public/Songti.ttc')
 
     parser.add_argument(
@@ -154,6 +155,7 @@ if __name__ == "__main__":
     logger.debug(" img_path_map size : {}".format(len(img_path_map)))
 
     fo = open(args.out_info, 'w')
+    fo_nocar = open(args.out_info_nocar, 'w')
     index = 0
     font = ImageFont.truetype(args.font_path, 20)
     for path, (sub_dir, filename) in img_path_map.items():
@@ -177,20 +179,18 @@ if __name__ == "__main__":
             '''
             draw = ImageDraw.Draw(img)
             draw.rectangle(best_box.tolist(), outline=(0, 255, 0), width=6)
+            '''
             fo.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
                                                 ",".join([str(x) for x in best_box.tolist()]),
                                                 best_score,
                                                 2))
-            '''
         else:
-            continue
-            '''
             w, h = img.size
-            fo.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
+            fo_nocar.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
                                                 ",".join([str(x) for x in [0, 0, w, h]]),
                                                 0,
                                                 2))
-            '''
+            continue
         '''
         for i, box in enumerate(boxes):
             draw = ImageDraw.Draw(img)
@@ -203,3 +203,4 @@ if __name__ == "__main__":
         '''
         # break
     fo.close()
+    fo_nocar.close()
