@@ -159,48 +159,36 @@ if __name__ == "__main__":
     index = 0
     font = ImageFont.truetype(args.font_path, 20)
     for path, (sub_dir, filename) in img_path_map.items():
-        # use PIL, to be consistent with evaluation
-        img = read_image(path, format="BGR")
-
-        predictions, visualized_output, best_box, best_score, boxes, scores, classes = detect_car(img)
-        # img = Image.open(path)
-
         out_dir = os.path.join(args.output, sub_dir)
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)
         assert os.path.isdir(args.output), args.output
-        # out_filename = os.path.join(args.output, os.path.basename(path))
-        # visualized_output.save(out_filename)
+        img_save_path = os.path.join(out_dir, filename)
+        if os.path.isfile(img_save_path):
+            logging.debug("{} is a file. [exists]".format(img_save_path))
+            continue
+
+        # use PIL, to be consistent with evaluation
+        img = read_image(path, format="BGR")
+
+        predictions, visualized_output, best_box, best_score, boxes, scores, classes = detect_car(img)
+
         if best_score is not None and best_box is not None:
             x1, y1 = int(best_box[0]), int(best_box[1])
             x2, y2 = int(best_box[2] + 0.5), int(best_box[3] + 0.5)
             img_car_best = img[y1:y2, x1:x2, :]
-            img.save(os.path.join(out_dir, filename))
-            '''
-            draw = ImageDraw.Draw(img)
-            draw.rectangle(best_box.tolist(), outline=(0, 255, 0), width=6)
-            '''
+            cv2.imwrite(img_save_path, img_car_best)
             fo.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
                                                 ",".join([str(x) for x in best_box.tolist()]),
                                                 best_score,
                                                 2))
         else:
-            w, h = img.size
+            h, w = img.shape[:2]
             fo_nocar.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
                                                 ",".join([str(x) for x in [0, 0, w, h]]),
                                                 0,
                                                 2))
             continue
-        '''
-        for i, box in enumerate(boxes):
-            draw = ImageDraw.Draw(img)
-            draw.rectangle(box.tolist(), outline=(255, 0, 0), width=2)
-            draw.text((box[0], box[1]),
-                        "{}.{}.{:.2f}".format(classes[i], COCO_CLASSES[classes[i]], scores[i]),
-                        font=font,
-                        fill=(0, 0, 255))
-        img.save(os.path.join(out_dir, filename))
-        '''
-        # break
+
     fo.close()
     fo_nocar.close()
