@@ -6,6 +6,7 @@ import os
 import time
 import cv2
 import tqdm
+import traceback
 from PIL import Image, ImageDraw, ImageFont
 
 from detectron2.config import get_cfg
@@ -165,11 +166,17 @@ if __name__ == "__main__":
         assert os.path.isdir(args.output), args.output
         img_save_path = os.path.join(out_dir, filename)
         if os.path.isfile(img_save_path):
-            logging.debug("{} is a file. [exists]".format(img_save_path))
+            logger.debug("{} is a file. [exists]".format(img_save_path))
             continue
 
         # use PIL, to be consistent with evaluation
-        img = read_image(path, format="BGR")
+        try:
+            img = read_image(path, format="BGR")
+        except:
+            traceback.print_exc()
+            logger.debug("{} is not a valid image !".format(path))
+            continue
+
 
         predictions, visualized_output, best_box, best_score, boxes, scores, classes = detect_car(img)
 
