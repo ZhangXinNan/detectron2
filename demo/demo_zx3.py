@@ -145,6 +145,7 @@ def get_map_of_all_img_path(in_dir):
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
+    print(args)
     setup_logger(name="fvcore")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     index = 0
     for path, (sub_dir, filename) in img_path_map.items():
         # 只处理部分文件夹
-        sid = int(sub_dir.split('.')[-1])
+        sid = int(os.path.dirname(sub_dir).split('.')[-1])
         if sid % args.d1 != args.d2:
             continue
         # 创建输出文件目录
