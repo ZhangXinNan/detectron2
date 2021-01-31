@@ -188,6 +188,10 @@ if __name__ == "__main__":
                                                 best_score,
                                                 2))
         else:
+            # cv2.imwrite(img_save_path, img)
+            with open(path, 'rb') as file_in:
+                with open(img_save_path, 'wb') as file_out:
+                    file_out.write(file_in.read())
             h, w = img.shape[:2]
             fo_nocar.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
                                                 ",".join([str(x) for x in [0, 0, w, h]]),
