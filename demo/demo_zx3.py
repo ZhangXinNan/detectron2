@@ -66,9 +66,8 @@ def get_parser():
     # parser.add_argument("--out_dir")
     parser.add_argument("--out_info")
     parser.add_argument('--out_info_nocar')
-    parser.add_argument("--font_path", default='~/data_public/Songti.ttc')
-    parser.add_argument("--d1", default=5)
-    parser.add_argument("--d2", default=0)
+    parser.add_argument('--d1', default=10, type=int)
+    parser.add_argument('--d2', default=0, type=int)
 
     parser.add_argument(
         "--confidence-threshold",
@@ -146,6 +145,8 @@ def get_map_of_all_img_path(in_dir):
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
+    print(args)
+
     setup_logger(name="fvcore")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
@@ -160,16 +161,19 @@ if __name__ == "__main__":
     fo = open(args.out_info, 'w')
     fo_nocar = open(args.out_info_nocar, 'w')
     index = 0
-    font = ImageFont.truetype(args.font_path, 20)
+
     for path, (sub_dir, filename) in img_path_map.items():
-        sid = int(os.path.basename(sub_dir).split('.'))
+        # 只处理部分文件夹
+        sid = int(os.path.dirname(sub_dir).split('.')[-1])
         if sid % args.d1 != args.d2:
             continue
-
+        # 创建输出文件目录
         out_dir = os.path.join(args.output, sub_dir)
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)
         assert os.path.isdir(args.output), args.output
+
+        # 若是结果已经存在，则跳过。
         img_save_path = os.path.join(out_dir, filename)
         if os.path.isfile(img_save_path):
             logger.debug("{} is a file. [exists]".format(img_save_path))
@@ -185,6 +189,8 @@ if __name__ == "__main__":
 
 
         predictions, visualized_output, best_box, best_score, boxes, scores, classes = detect_car(img)
+
+        # 只保存一个结果。如果没有，则不进行保存。
 
         if best_score is not None and best_box is not None:
             x1, y1 = int(best_box[0]), int(best_box[1])

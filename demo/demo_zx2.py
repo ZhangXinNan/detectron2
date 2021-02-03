@@ -66,7 +66,6 @@ def get_parser():
     # parser.add_argument("--out_dir")
     parser.add_argument("--out_info")
     parser.add_argument('--out_info_nocar')
-    parser.add_argument("--font_path", default='~/data_public/Songti.ttc')
 
     parser.add_argument(
         "--confidence-threshold",
@@ -158,7 +157,6 @@ if __name__ == "__main__":
     fo = open(args.out_info, 'w')
     fo_nocar = open(args.out_info_nocar, 'w')
     index = 0
-    font = ImageFont.truetype(args.font_path, 20)
     for path, (sub_dir, filename) in img_path_map.items():
         out_dir = os.path.join(args.output, sub_dir)
         if not os.path.isdir(out_dir):
@@ -190,6 +188,10 @@ if __name__ == "__main__":
                                                 best_score,
                                                 2))
         else:
+            # cv2.imwrite(img_save_path, img)
+            # with open(path, 'rb') as file_in:
+            #     with open(img_save_path, 'wb') as file_out:
+            #         file_out.write(file_in.read())
             h, w = img.shape[:2]
             fo_nocar.write("{}\t{}\t{}\t{}\n".format(os.path.join(sub_dir, filename),
                                                 ",".join([str(x) for x in [0, 0, w, h]]),
